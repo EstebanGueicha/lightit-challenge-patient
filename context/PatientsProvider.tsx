@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { getUsers } from '../services/users';
-import { Patient } from '../types';
+import { getUsers } from '@/services/users';
+import { Patient } from '@/types';
+import { formatUsers } from '@/adapters/users';
 
 const defaultValue = {
   loading: false,
@@ -20,7 +21,7 @@ export const PatientsProvider = ({ children }: any) => {
       setLoading(true);
       const responseUsers = await getUsers();
 
-      setPatients(responseUsers);
+      setPatients(formatUsers(responseUsers));
       // fetch patients
     } catch (error) {
       console.log('error', error);

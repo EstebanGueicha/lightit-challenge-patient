@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { COLORS, FONT } from '../../styles';
+import { COLORS, FONT } from '@/styles';
 
 const ModalStyles = StyleSheet.create({
   headerModal: {

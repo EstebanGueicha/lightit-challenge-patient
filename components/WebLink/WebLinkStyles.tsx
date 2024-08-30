@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { COLORS, FONT, SPACING } from '../../styles';
+import { COLORS, FONT, SPACING } from '@/styles';
 
 const WebLinkStyles = StyleSheet.create({
   textLink: {

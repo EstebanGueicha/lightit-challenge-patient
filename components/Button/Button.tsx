@@ -1,7 +1,8 @@
 import React, { FC } from 'react';
 import { ActivityIndicator, Text, TouchableOpacity } from 'react-native';
+import { COLORS } from '@/styles';
+
 import styles from './ButtonStyles';
-import { COLORS } from '../../styles';
 
 interface ButtonProps {
   onPress: () => void;

@@ -1,8 +1,9 @@
 import React, { FC, useState } from 'react';
 import { TextInput, View, Text } from 'react-native';
-import styles from './InputStyles';
-import { COLORS } from '../../styles';
+import { COLORS } from '@/styles';
 import { Ionicons } from '@expo/vector-icons';
+
+import styles from './InputStyles';
 
 type inputModeType =
   | 'decimal'

@@ -2,7 +2,9 @@ import React, { FC } from 'react';
 import * as Linking from 'expo-linking';
 import { Text, TouchableOpacity } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { COLORS } from '../../styles';
+import { COLORS } from '@/styles';
+import { showToast } from '../Toaster';
+import { ToastType } from '@/types';
 
 import styles from './WebLinkStyles';
 
@@ -17,7 +19,7 @@ const WebLink: FC<WebLinkProps> = ({ url }) => {
     try {
       await Linking.openURL(url);
     } catch (error) {
-      console.log(error);
+      showToast(ToastType.ERROR, `There was an error opening the link: ${url}`);
     }
   };
 

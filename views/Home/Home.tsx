@@ -1,33 +1,49 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
-  Platform,
+  ActivityIndicator,
+  RefreshControl,
   ScrollView,
   Text,
-  TextInput,
+  TouchableOpacity,
   useWindowDimensions,
   View,
 } from 'react-native';
-import { usePatients } from '../../context/PatientsProvider';
-import { Card } from '../../components/Card';
-import styles from './HomeStyles';
-import { Patient, ToastType } from '../../types';
-import { Modal } from '../../components/Modal';
-import { ModalForm } from '../ModalForm';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { showToast, ToastConfig } from '../../components/Toaster';
 import Toast from 'react-native-toast-message';
-import { Button } from '../../components/Button';
+import { usePatients } from '@/context/PatientsProvider';
+import { Card } from '@/components/Card';
+import { Patient, ToastType } from '@/types';
+import { Modal } from '@/components/Modal';
+import { Ionicons, Octicons } from '@expo/vector-icons';
+import { showToast, ToastConfig } from '@/components/Toaster';
+import { Button } from '@/components/Button';
+import { COLORS } from '@/styles';
+import { sortArrayBy } from '@/utils/sortArray';
+import { ModalForm } from './components/ModalForm';
+import { Header } from './components/Header';
+
+import styles from './HomeStyles';
 
 const Home = () => {
-  const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
-  const { patients, getPatients } = usePatients();
+  const { patients, getPatients, loading } = usePatients();
   const [showModal, setShowModal] = useState(false);
   const [patientSelected, setPatientSelected] = useState<Patient | null>(null);
+  const [sortBy, setSortBy] = useState<'asc' | 'desc'>('asc');
+  const [search, setSearch] = useState('');
+
+  const filterPatients = useMemo(() => {
+    const patientsFiltered = patients;
+
+    sortArrayBy(patientsFiltered, 'createdAt', sortBy === 'desc');
+
+    if (search === '') return patientsFiltered;
+
+    return patientsFiltered.filter((patient) =>
+      patient.name.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [patients, sortBy, search]);
 
   const handlePressPatients = (patient?: Patient) => {
-    // showToast(ToastType.SUCCESS, `Patient  successfully`);
     setShowModal(true);
     setPatientSelected(patient || null);
   };
@@ -46,36 +62,57 @@ const Home = () => {
 
   return (
     <View style={styles.container}>
-      <View
-        style={[
-          styles.headerContainer,
-          { paddingTop: Platform.OS === 'ios' ? insets.top : insets.top + 32 },
-        ]}
-      >
-        <View>
-          <Text style={styles.title}>Welcome Back</Text>
-          <TextInput placeholder="Search patient" style={styles.searchInput} />
-        </View>
-      </View>
-      <View style={styles.addNewPatientContainer}>
-        <Button
-          rightIcon={<Ionicons name="add" size={16} />}
-          text="Create new patient"
-          variant="outlined"
-          onPress={() => handlePressPatients()}
-        />
-      </View>
-      <ScrollView>
-        <View style={styles.patientsList}>
-          {patients.map((patient) => (
-            <Card
-              key={patient.id}
-              patient={patient}
-              onPressCard={handlePressPatients}
+      <Header search={search} onChange={setSearch} />
+      <View style={styles.contentContainer}>
+        <View style={styles.filterContainer}>
+          <Button
+            rightIcon={<Ionicons name="add" size={16} />}
+            text="New patient"
+            variant="outlined"
+            onPress={() => handlePressPatients()}
+          />
+          <TouchableOpacity
+            onPress={() =>
+              setSortBy((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+            }
+          >
+            <Octicons
+              color={COLORS.PRIMARY}
+              name={`sort-${sortBy}`}
+              size={24}
             />
-          ))}
+          </TouchableOpacity>
         </View>
-      </ScrollView>
+        {loading && patients.length === 0 ? (
+          <ActivityIndicator color={COLORS.PRIMARY} size="large" />
+        ) : (
+          <ScrollView
+            refreshControl={
+              <RefreshControl
+                colors={[COLORS.PRIMARY]}
+                refreshing={loading}
+                tintColor={COLORS.PRIMARY}
+                onRefresh={getPatients}
+              />
+            }
+          >
+            <View style={styles.patientsList}>
+              {filterPatients.length > 0 ? (
+                filterPatients.map((patient) => (
+                  <Card
+                    key={patient.id}
+                    patient={patient}
+                    onPressCard={handlePressPatients}
+                  />
+                ))
+              ) : (
+                <Text style={styles.text}>No patients found</Text>
+              )}
+            </View>
+          </ScrollView>
+        )}
+      </View>
+
       <Toast config={ToastConfig} />
       {showModal && (
         <Modal

@@ -1,14 +1,15 @@
 import React, { FC, useState } from 'react';
 import { Alert, View } from 'react-native';
-import { Patient, ToastType } from '../../types';
 import { Formik } from 'formik';
 import * as yup from 'yup';
-import { createUser, deleteUser, updateUser } from '../../services/users';
-import { Input } from '../../components/Input';
-import { Image } from 'expo-image';
-import { Button } from '../../components/Button';
-import { COLORS } from '../../styles';
-import { showToast } from '../../components/Toaster';
+import { useUploadImage } from '@/hooks/useUploadImage';
+import { Patient, ToastType } from '@/types';
+import { createUser, deleteUser, updateUser } from '@/services/users';
+import { showToast } from '@/components/Toaster';
+import AvatarPicker from '@/components/AvatarPicker/AvatarPicker';
+import { Input } from '@/components/Input';
+import { Button } from '@/components/Button';
+import { COLORS } from '@/styles';
 
 import styles from './ModalFormStyles';
 
@@ -32,6 +33,8 @@ const patientValidationSchema = yup.object({
 const ModalForm: FC<ModalFormProps> = ({ patient, onClose, onRefetch }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingDelete, setIsLoadingDelete] = useState<boolean>(false);
+  const [imageAvatar, setImageAvatar] = useState<string | null>(null);
+  const { onUploadImage, isLoading: isLoadingImage } = useUploadImage();
   const isNewPatient = !patient;
 
   const initialValues: Patient = {
@@ -46,10 +49,22 @@ const ModalForm: FC<ModalFormProps> = ({ patient, onClose, onRefetch }) => {
   const handleSubmitForm = async (values: Patient) => {
     try {
       setIsLoading(true);
+
+      const dataPatient = {
+        ...values,
+      };
+
+      if (imageAvatar) {
+        const newUrlAvatar = await onUploadImage(imageAvatar);
+
+        if (newUrlAvatar) dataPatient.avatar = newUrlAvatar;
+      }
+
       if (isNewPatient) {
-        await createUser(values);
+        dataPatient.createdAt = new Date().toISOString();
+        await createUser(dataPatient);
       } else {
-        await updateUser(values);
+        await updateUser(dataPatient);
       }
       showToast(
         ToastType.SUCCESS,
@@ -98,15 +113,11 @@ const ModalForm: FC<ModalFormProps> = ({ patient, onClose, onRefetch }) => {
   return (
     <View style={styles.container}>
       <View style={styles.imageContainer}>
-        <View style={styles.avatarContainer}>
-          {patient?.avatar && (
-            <Image
-              contentFit="cover"
-              source={patient?.avatar}
-              style={styles.avatar}
-            />
-          )}
-        </View>
+        <AvatarPicker
+          callbackUrl={(value) => setImageAvatar(value)}
+          isLoading={isLoadingImage}
+          url={patient?.avatar}
+        />
       </View>
       <Formik
         initialValues={initialValues}

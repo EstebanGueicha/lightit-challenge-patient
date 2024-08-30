@@ -1,20 +1,7 @@
 import { Platform, StyleSheet } from 'react-native';
-import { COLORS, SPACING } from '../../styles';
+import { SPACING } from '@/styles';
 
 const ModalFormStyles = StyleSheet.create({
-  avatar: {
-    borderRadius: 83,
-    height: 83,
-    width: 83,
-  },
-  avatarContainer: {
-    backgroundColor: 'white',
-    borderColor: COLORS.GRAY,
-    borderRadius: 85,
-    borderWidth: 1,
-    height: 85,
-    width: 85,
-  },
   buttonsContainer: {
     flexDirection: 'column',
     gap: SPACING.SPACE_3,

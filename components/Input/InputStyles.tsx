@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { COLORS, FONT } from '../../styles';
+import { COLORS, FONT } from '@/styles';
 
 const InputStyles = StyleSheet.create({
   errorText: {
@@ -13,7 +13,7 @@ const InputStyles = StyleSheet.create({
     fontFamily: FONT.Manrope_400,
     maxHeight: 100,
     minHeight: 44,
-    paddingHorizontal: 12,
+    paddingHorizontal: 8,
     paddingVertical: 8,
   },
   inputContainer: {
@@ -25,6 +25,7 @@ const InputStyles = StyleSheet.create({
     justifyContent: 'space-between',
     maxHeight: 100,
     minHeight: 44,
+    paddingLeft: 10,
     paddingRight: 18,
   },
   label: {
